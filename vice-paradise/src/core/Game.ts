@@ -87,6 +87,8 @@ export class Game {
   private menuAngle = 0;
   private timeBoost = false;
   zoneName = '';
+  /** Skip GPU rendering (used by automated simulation tests). */
+  skipRender = false;
   onStateChange: ((s: GameState) => void) | null = null;
   private appliedShadow: ShadowQuality | '' = '';
 
@@ -320,7 +322,8 @@ export class Game {
           if (x.driver === 'player') {
             y.lastHitByPlayer = this.time;
             if (y.mode === 'traffic') { y.speed *= 0.5; y.makeDynamic(); y.driver = 'npc'; }
-            if (y.kind === 'police' && (y.driver === 'police' || y.sirenOn) && dmg > 15) this.police.reportCrime('hitCop', y.curPos);
+            // only the player's fault if they were the faster car
+            if (y.kind === 'police' && (y.driver === 'police' || y.sirenOn) && dmg > 15 && Math.abs(x.speedMs) > Math.abs(y.speedMs) + 3) this.police.reportCrime('hitCop', y.curPos);
           }
         }
       }
@@ -451,7 +454,7 @@ export class Game {
     let dt = this.lastT ? t - this.lastT : 1 / 60;
     this.lastT = t;
     this.perf.push(dt * 1000);
-    dt = Math.min(dt, 0.1);
+    dt = Math.max(0, Math.min(dt, 0.1));
     this.renderer.info.reset();
 
     this.handleInput(dt);
@@ -536,7 +539,7 @@ export class Game {
     this.pipeline.scale = this.settings.gfx.autoAdjust ? this.perf.dynScale : this.settings.gfx.resolutionScale;
     if (!this.settings.gfx.autoAdjust) this.perf.dynScale = this.settings.gfx.resolutionScale;
 
-    this.pipeline.render(this.scene, this.camera, this.time);
+    if (!this.skipRender) this.pipeline.render(this.scene, this.camera, this.time);
     this.updatePerfOverlay(dt);
     this.input.endFrame();
   }

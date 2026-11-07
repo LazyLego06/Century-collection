@@ -114,7 +114,9 @@ export class Police {
       const patrol = g.vehicles.find((v) => v.kind === 'police' && v.driver === 'traffic' && v.curPos.distanceTo(pl.pos) < 140);
       if (patrol) { patrol.makeDynamic(); patrol.driver = 'police'; patrol.sirenOn = true; patrol.aiState = {}; }
       else {
-        const v = g.traffic.trySpawn(g.vehicles, pl.pos, frustum, 90, 170, 'police');
+        // new units are sent to the last known position, not the player's true location
+        const from = this.unseen > 2 ? this.lastSeen : pl.pos;
+        const v = g.traffic.trySpawn(g.vehicles, from, frustum, 90, 170, 'police', pl.pos);
         if (v) { v.makeDynamic(); v.driver = 'police'; v.sirenOn = true; v.aiState = {}; }
       }
     }
@@ -242,7 +244,11 @@ export class Police {
     if (speed < tSpeed - 1) { v.throttle = 1; v.brakeIn = 0; }
     else if (speed > tSpeed + 4) { v.throttle = 0; v.brakeIn = 1; }
     else { v.throttle = 0.3; v.brakeIn = 0; }
-    if (Math.abs(ang) > 2.4 && dist > 10) { v.throttle = 0; v.brakeIn = 1; } // target behind: reverse-turn
+    if (Math.abs(ang) > 2.2 && dist > 10) {
+      // target behind: K-turn (reversing inverts steering)
+      v.throttle = 0; v.brakeIn = 1; v.handbrake = false;
+      if (speed < 2) v.steer = -Math.sign(ang);
+    }
   }
 
   get unitCount() { return this.units().length; }

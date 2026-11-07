@@ -58,8 +58,8 @@ export class Traffic {
   }
 
   /** Try to spawn one traffic car on a random edge between minR and maxR from the focus, outside the view. */
-  trySpawn(vehicles: Vehicle[], focus: THREE.Vector3, frustum: THREE.Frustum | null, minR: number, maxR: number, forceKind?: VehicleKind): Vehicle | null {
-    for (let tries = 0; tries < 12; tries++) {
+  trySpawn(vehicles: Vehicle[], focus: THREE.Vector3, frustum: THREE.Frustum | null, minR: number, maxR: number, forceKind?: VehicleKind, headToward?: THREE.Vector3): Vehicle | null {
+    for (let tries = 0; tries < (headToward ? 30 : 12); tries++) {
       const ai = Math.floor(Math.random() * (N + 1)), aj = Math.floor(Math.random() * (N + 1));
       const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
       const [dx, dz] = dirs[Math.floor(Math.random() * 4)];
@@ -71,6 +71,7 @@ export class Traffic {
       const d = Math.hypot(p.x - focus.x, p.z - focus.z);
       if (d < minR || d > maxR) continue;
       if (frustum && d < 200 && frustum.containsPoint(_a.set(p.x, 1, p.z))) continue;
+      if (headToward && (headToward.x - p.x) * dx + (headToward.z - p.z) * dz < 0) continue;
       let clear = true;
       for (const v of vehicles) if (v.curPos.distanceToSquared(p) < 14 * 14) { clear = false; break; }
       if (!clear) continue;
