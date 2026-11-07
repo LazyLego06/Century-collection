@@ -1,0 +1,14 @@
+import { createRequire } from 'module';
+const { chromium } = createRequire(import.meta.url)('playwright');
+const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
+page.on('pageerror', (e) => console.log('pageerror', e.message));
+await page.goto('http://localhost:4173/');
+await page.waitForSelector('#menu:not(.hidden)', { timeout: 120000 });
+await page.click('#btn-play');
+const setup = process.argv[2] || '';
+await page.evaluate(`(() => { const g = window.game; g.setState('playing'); g.input.enabled = true; g.env.hours = 12; g.settings.gfx.autoAdjust = false; ${setup} })()`);
+await page.evaluate(() => { const g = window.game; g.camYaw = Math.PI*0.75; g.camPitch=0.15; });
+await page.waitForTimeout(3000);
+await page.screenshot({ path: `/tmp/shots/${process.argv[3] || 'x'}.png` });
+await browser.close();

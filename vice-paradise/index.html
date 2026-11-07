@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vice Paradise</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='30' fill='%23ff2fa0'/><path d='M14 40h36' stroke='%2300f0ff' stroke-width='6'/></svg>" />
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- Loading -->
+  <div id="loading" class="screen">
+    <div class="logo small"><span class="vice">Vice</span><span class="paradise">Paradise</span></div>
+    <div class="loadbar"><div id="loadfill"></div></div>
+    <div id="loadtext">Loading…</div>
+  </div>
+
+  <!-- Main menu -->
+  <div id="menu" class="screen hidden">
+    <div class="menu-left">
+      <div class="logo"><span class="vice">Vice</span><span class="paradise">Paradise</span></div>
+      <div class="tagline">Sun. Neon. No rules.</div>
+      <div class="menu-buttons">
+        <button data-act="play" id="btn-play">Start Game</button>
+        <button data-act="settings">Graphics Settings</button>
+        <button data-act="controls">Controls</button>
+        <button data-act="reset">New Game (Reset Save)</button>
+      </div>
+      <div id="hwinfo" class="hwinfo"></div>
+    </div>
+  </div>
+
+  <!-- Pause -->
+  <div id="pause" class="screen hidden dim">
+    <div class="panel">
+      <h2>Paused</h2>
+      <div class="menu-buttons">
+        <button data-act="resume">Resume</button>
+        <button data-act="map">Map</button>
+        <button data-act="settings">Graphics Settings</button>
+        <button data-act="controls">Controls</button>
+        <button data-act="quit">Quit to Title</button>
+      </div>
+      <div id="pause-stats" class="pause-stats"></div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div id="settings" class="screen hidden dim">
+    <div class="panel wide">
+      <h2>Graphics &amp; Game Settings</h2>
+      <div class="presets" id="presets"></div>
+      <div class="settings-grid" id="settings-grid"></div>
+      <div class="menu-buttons row">
+        <button data-act="settings-back">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div id="controls" class="screen hidden dim">
+    <div class="panel wide">
+      <h2>Controls</h2>
+      <div class="controls-grid">
+        <div><b>On foot</b>
+          <p>WASD – move · Shift – sprint · Space – jump</p>
+          <p>Mouse – camera · Right mouse – aim · Left mouse – shoot</p>
+          <p>R – reload · 1-4 / wheel – switch weapon</p>
+          <p>F – enter / steal vehicle · E – start mission</p>
+        </div>
+        <div><b>Driving</b>
+          <p>W / S – throttle / brake &amp; reverse</p>
+          <p>A / D – steer · Space – handbrake</p>
+          <p>F – exit vehicle · C – look behind · H – horn</p>
+          <p>Mouse – look around (camera re-centres)</p>
+        </div>
+        <div><b>General</b>
+          <p>M – full-screen map (click to set waypoint)</p>
+          <p>Esc / P – pause · F3 – performance overlay</p>
+          <p>F2 – FPS counter · T – speed up time</p>
+          <p>Backspace – abandon mission</p>
+        </div>
+      </div>
+      <div class="menu-buttons row"><button data-act="controls-back">Back</button></div>
+    </div>
+  </div>
+
+  <!-- Full map -->
+  <div id="bigmap" class="screen hidden dim">
+    <canvas id="bigmap-canvas"></canvas>
+    <div class="bigmap-help">Click: set waypoint · Right click: clear · Wheel: zoom · Drag: pan · M / Esc: close</div>
+    <div class="bigmap-legend">
+      <span><i style="background:#fff"></i>You</span>
+      <span><i style="background:#ffd23f"></i>Mission</span>
+      <span><i style="background:#3fa0ff"></i>Police Station</span>
+      <span><i style="background:#ff4d6d"></i>Hospital</span>
+      <span><i style="background:#ff2fa0"></i>Waypoint</span>
+      <span><i style="background:#c13bff"></i>Nightclub</span>
+      <span><i style="background:#2bd97c"></i>Gas Station</span>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div id="crosshair"></div>
+    <div id="hitmarker"></div>
+    <div id="hud-topright">
+      <div id="hud-time"></div>
+      <div id="hud-weapon"><span id="hud-weapon-name"></span><span id="hud-ammo"></span></div>
+      <div id="hud-money">$0</div>
+      <div id="hud-stars"></div>
+    </div>
+    <div id="hud-help" class="hidden"></div>
+    <div id="hud-objective"></div>
+    <div id="hud-timer" class="hidden"></div>
+    <div id="hud-minimap">
+      <canvas id="minimap" width="440" height="440"></canvas>
+      <div class="bars">
+        <div class="bar health"><div id="bar-health"></div></div>
+        <div class="bar armor"><div id="bar-armor"></div></div>
+      </div>
+    </div>
+    <div id="hud-speedo" class="hidden">
+      <div id="speedo-val">0</div><div class="unit">KM/H</div>
+      <div id="speedo-name"></div>
+      <div class="bar vhealth"><div id="bar-vhealth"></div></div>
+    </div>
+    <div id="hud-big" class="hidden"></div>
+    <div id="hud-zone"></div>
+    <div id="damage-flash"></div>
+  </div>
+
+  <div id="fps" class="hidden"></div>
+  <div id="perf" class="hidden"></div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
