@@ -80,12 +80,12 @@ void main() {
 
 interface SkyKey { el: number; zenith: number; horizon: number; sun: number; sunI: number; hemiSky: number; hemiGround: number; hemiI: number; }
 const KEYS: SkyKey[] = [
-  { el: -0.35, zenith: 0x02040e, horizon: 0x120c2a, sun: 0x8899ff, sunI: 0.35, hemiSky: 0x283a6a, hemiGround: 0x15101a, hemiI: 0.55 },
-  { el: -0.08, zenith: 0x10123a, horizon: 0x5a2a6a, sun: 0x9a88ff, sunI: 0.25, hemiSky: 0x40407a, hemiGround: 0x201828, hemiI: 0.6 },
+  { el: -0.35, zenith: 0x03061a, horizon: 0x1a1238, sun: 0x8899ff, sunI: 0.5, hemiSky: 0x4a5a9a, hemiGround: 0x2a2030, hemiI: 1.0 },
+  { el: -0.08, zenith: 0x10123a, horizon: 0x5a2a6a, sun: 0x9a88ff, sunI: 0.4, hemiSky: 0x5a5a9a, hemiGround: 0x2a2030, hemiI: 0.95 },
   { el: 0.02, zenith: 0x2a2a6e, horizon: 0xff6a4a, sun: 0xff7a40, sunI: 1.0, hemiSky: 0x8a6aa0, hemiGround: 0x3a2a2a, hemiI: 0.75 },
   { el: 0.15, zenith: 0x3a5aa8, horizon: 0xffb07a, sun: 0xffb070, sunI: 2.0, hemiSky: 0x9ab0d8, hemiGround: 0x4a4038, hemiI: 0.9 },
-  { el: 0.45, zenith: 0x2f6fd0, horizon: 0xb9dcff, sun: 0xfff2dc, sunI: 2.8, hemiSky: 0xb0d0ff, hemiGround: 0x5a5048, hemiI: 1.0 },
-  { el: 1.0, zenith: 0x2a66cc, horizon: 0xaad4ff, sun: 0xffffff, sunI: 3.0, hemiSky: 0xb8d8ff, hemiGround: 0x5a5048, hemiI: 1.05 },
+  { el: 0.45, zenith: 0x2f6fd0, horizon: 0xb9dcff, sun: 0xfff2dc, sunI: 2.3, hemiSky: 0xb0d0ff, hemiGround: 0x5a5048, hemiI: 0.9 },
+  { el: 1.0, zenith: 0x2a66cc, horizon: 0xaad4ff, sun: 0xffffff, sunI: 2.4, hemiSky: 0xb8d8ff, hemiGround: 0x5a5048, hemiI: 0.95 },
 ];
 
 const tmpA = new THREE.Color(), tmpB = new THREE.Color();
@@ -125,7 +125,8 @@ export class Environment {
     const skyMat = new THREE.ShaderMaterial({ vertexShader: SKY_VERT, fragmentShader: SKY_FRAG, uniforms: this.skyUniforms, side: THREE.BackSide, depthWrite: false, fog: false });
     this.sky = new THREE.Mesh(new THREE.SphereGeometry(1000, 24, 12), skyMat);
     this.sky.frustumCulled = false;
-    this.sky.renderOrder = -10;
+    // drawn after opaque geometry so the depth test rejects every hidden sky pixel (saves fill-rate)
+    this.sky.renderOrder = 100;
     scene.add(this.sky);
 
     this.waterMat = new THREE.ShaderMaterial({
@@ -141,6 +142,7 @@ export class Environment {
     this.water = new THREE.Mesh(wg, this.waterMat);
     this.water.position.set(450, WATER_Y, 450);
     this.water.frustumCulled = false;
+    this.water.renderOrder = 90;
     scene.add(this.water);
   }
 
@@ -196,7 +198,7 @@ export class Environment {
     const lightDir = elev > -0.05 ? this.sunDir : new THREE.Vector3(-this.sunDir.x, -this.sunDir.y, -this.sunDir.z);
     this.sun.color.copy(u.sunColor.value);
     this.sun.intensity = lerp(a.sunI, b.sunI, f) * (elev > -0.05 ? smoothstep(-0.05, 0.05, elev) : 1);
-    if (elev <= -0.05) { this.sun.color.setHex(0x8899ff); this.sun.intensity = 0.35; }
+    if (elev <= -0.05) { this.sun.color.setHex(0x9aaaff); this.sun.intensity = 0.6; }
 
     // shadow camera follows the focus, snapped to texels to avoid shimmering
     const R = this.shadowRadius;

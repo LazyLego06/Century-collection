@@ -159,6 +159,10 @@ export class Vehicle {
   fixedUpdate(dt: number) {
     if (this.mode !== 'physics' || !this.controller) return;
     const c = this.controller, s = this.spec;
+    // never feed NaN into the solver (it would poison the body)
+    if (!Number.isFinite(this.steer)) this.steer = 0;
+    if (!Number.isFinite(this.throttle)) this.throttle = 0;
+    if (!Number.isFinite(this.brakeIn)) this.brakeIn = 0;
     const dead = this.destroyed || this.sunk || this.submergedTime > 0.3;
     const speed = c.currentVehicleSpeed();
     const throttle = dead ? 0 : this.throttle;

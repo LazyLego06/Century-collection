@@ -134,6 +134,19 @@ export class CityLayout {
         ch.tlights.push({ x: x - 7.2, z: z + 7.2, axis: 1, ry: Math.PI / 2 });
       }
 
+    // Paradise Expressway: the perimeter ring road, marked with overhead gantries
+    for (let k = 1; k < N; k += 3) {
+      const t = k * CELL + CELL / 2;
+      for (const [x, z, alongX] of [[t, 0, true], [t, CITY, true], [0, t, false], [CITY, t, false]] as [number, number, boolean][]) {
+        const ch = this.chunkAt(Math.min(x, CITY - 1), Math.min(z, CITY - 1))!;
+        const px = alongX ? 0 : 7.2, pz = alongX ? 7.2 : 0;
+        ch.boxes.push({ x: x - px, y: 0, z: z - pz, w: 0.35, h: 6.4, d: 0.35, color: 0x9a9ea6, ry: 0, collide: true });
+        ch.boxes.push({ x: x + px, y: 0, z: z + pz, w: 0.35, h: 6.4, d: 0.35, color: 0x9a9ea6, ry: 0, collide: true });
+        ch.boxes.push({ x, y: 6.2, z, w: alongX ? 0.4 : 14.8, h: 0.35, d: alongX ? 14.8 : 0.4, color: 0x9a9ea6, ry: 0, collide: false });
+        ch.boxes.push({ x, y: 5.0, z, w: alongX ? 0.15 : 6, h: 1.4, d: alongX ? 6 : 0.15, color: 0x0f6b3a, ry: 0, collide: false });
+        ch.neon.push({ x, y: 5.6, z, w: alongX ? 0.17 : 4.4, h: 0.12, d: alongX ? 4.4 : 0.17, color: 0xe8fff0, ry: 0, collide: false });
+      }
+    }
     this.genCanal();
     this.genBeach(R);
   }
@@ -146,7 +159,7 @@ export class CityLayout {
 
   private genBlock(b: Block, ch: Chunk, R: ReturnType<typeof rng>) {
     const { cx, cz } = b;
-    const slabColor = b.district === District.Beach ? 0xd9cbb0 : 0xa9a6a0;
+    const slabColor = b.district === District.Beach ? 0xc9b9a0 : 0x8f8c87;
     ch.slabs.push({ x: cx, y: 0, z: cz, w: BLOCK_HALF * 2, h: SLAB_H, d: BLOCK_HALF * 2, color: slabColor, ry: 0, collide: true });
     if (b.lawn) ch.slabs.push({ x: cx, y: 0, z: cz, w: LOT_HALF * 2, h: SLAB_H + 0.03, d: LOT_HALF * 2, color: 0x4f8f3a, ry: 0, collide: false });
 
@@ -233,7 +246,7 @@ export class CityLayout {
           const w = R.range(18, 26), d = span - 3, h = R.range(14, 42);
           const x = -26 + w / 2 + R.range(0, 4);
           B(x, z, w, d, h, R.pick(PASTELS), 4);
-          neon(x + w / 2 + 0.12, h * 0.6, z, 0.25, h * 0.7, 1.2, R.pick(NEON));
+          neon(x + w / 2 + 0.12, h * 0.2, z, 0.25, h * 0.7, 1.2, R.pick(NEON));
           neon(x + w / 2 + 0.12, 3.6, z, 0.2, 0.3, d * 0.9, R.pick(NEON));
           box(x + w / 2 + 2.5, 3.2, z, 5, 0.3, d * 0.6, R.pick(PASTELS), false); // awning
         }
@@ -386,3 +399,6 @@ export function isWater(x: number, z: number) {
   }
   return false;
 }
+/** Perimeter ring road ("Paradise Expressway") has a higher speed limit. */
+export const isExpressway = (ai: number, aj: number, bi: number, bj: number) =>
+  (ai === bi && (ai === 0 || ai === N)) || (aj === bj && (aj === 0 || aj === N));

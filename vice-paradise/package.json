@@ -4,19 +4,28 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "start": "node scripts/launch.mjs",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:physics": "tsx scripts/cartest.ts",
+    "test:smoke": "node scripts/smoke.mjs http://localhost:4173/ /tmp",
+    "test:gameplay": "node scripts/gameplay.mjs",
+    "test:missions": "node scripts/missions.mjs",
+    "bench:presets": "node scripts/presets.mjs"
   },
   "dependencies": {
-    "@dimforge/rapier3d-compat": "^0.21.0",
-    "three": "^0.187.0"
+    "@dimforge/rapier3d-compat": "0.21.0",
+    "three": "0.187.0"
   },
   "devDependencies": {
-    "@types/three": "^0.187.0",
-    "tsx": "^4.20.6",
-    "typescript": "^5.9.3",
-    "vite": "^8.3.6"
+    "@types/three": "0.187.0",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vite": "8.3.6"
+  },
+  "engines": {
+    "node": ">=20.19"
   }
 }

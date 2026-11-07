@@ -249,7 +249,7 @@ export class Game {
 
     if (inp.hit('KeyF')) {
       if (pl.inVehicle) pl.exitVehicle();
-      else { const v = this.nearestEnterable(); if (v) { pl.enterVehicle(v); this.camYaw = v.yaw + Math.PI; } }
+      else { const v = this.nearestEnterable(); if (v) { pl.enterVehicle(v); this.camYaw = v.yaw; this.camPitch = 0.16; } }
     }
     if (inp.hit('KeyE')) { const m = this.missions.giverNear(); if (m) this.missions.start(m); }
 
@@ -350,10 +350,15 @@ export class Game {
       if (v.destroyed) v.wreckAge += dt;
       if (v.sunk && pl.vehicle === v) { pl.exitVehicle(); }
       if (v.horn > 0) v.horn -= dt;
+      // safety net: a body that went non-finite is reset to the nearest road instead of corrupting the sim
+      if (!Number.isFinite(v.curPos.x + v.curPos.y + v.curPos.z)) {
+        v.teleport(new THREE.Vector3(Math.round(pl.pos.x / 72) * 72 + 3, 1.2, Math.round(pl.pos.z / 72) * 72 + 30), 0);
+        v.aiState = {}; v.aiState.despawn = v.driver !== 'player' ? 1 : 0;
+      }
       // despawn
       const d = v.curPos.distanceTo(pl.pos);
       const isPlayers = pl.vehicle === v;
-      const missionV = [...this.missions.vehicles.values()].includes(v);
+      const missionV = this.missions.vehicles.size > 0 && [...this.missions.vehicles.values()].includes(v);
       let remove = false;
       if (!isPlayers && !missionV) {
         if (v.aiState.despawn && d > 40) remove = true;
@@ -415,11 +420,11 @@ export class Game {
       // auto-recentre behind the car when the mouse is idle
       const sp = v.speedMs;
       if (this.camIdle > 1.2 && Math.abs(sp) > 3) {
-        const behind = v.yaw + (sp < -1 ? 0 : Math.PI);
+        const behind = v.yaw + (sp < -1 ? Math.PI : 0); // chase view looks along the direction of travel
         this.camYaw += angleDiff(this.camYaw, behind) * damp(2.5, dt);
         this.camPitch += (0.16 - this.camPitch) * damp(2, dt);
       }
-      if (this.input.down('KeyC')) { this.camYaw = v.yaw; }
+      if (this.input.down('KeyC')) { this.camYaw = v.yaw + Math.PI; } // look behind
       cam.fov = lerp(cam.fov, this.settings.game.fov + clamp(Math.abs(sp) / 45, 0, 1) * 12, damp(3, dt));
     } else {
       target = _v.copy(pl.pos); target.y += pl.dead ? 0.6 : 1.55;

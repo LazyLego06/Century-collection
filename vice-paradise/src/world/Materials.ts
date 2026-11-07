@@ -211,7 +211,7 @@ float vpGlow = 0.0;
   if (p.y > ${CANAL_Z0.toFixed(1)} && p.y < ${CANAL_Z1.toFixed(1)} && !rx) discard;
   float n = vpNoise(p * 1.7) * 0.5 + vpNoise(p * 0.15) * 0.5;
   vec3 asphalt = vec3(0.13, 0.13, 0.145) * (0.8 + 0.4 * n);
-  vec3 col = vec3(0.62, 0.6, 0.57) * (0.85 + 0.25 * n); // paving
+  vec3 col = vec3(0.5, 0.49, 0.47) * (0.85 + 0.25 * n); // paving
   if (rx || rz) {
     col = asphalt;
     if (rx && !rz) {
@@ -253,7 +253,7 @@ export function createSandMaterial() {
       .replace('#include <map_fragment>', `
 {
   float n = vpNoise(vWorld.xz * 0.8) * 0.6 + vpNoise(vWorld.xz * 6.0) * 0.4;
-  vec3 dry = vec3(0.93, 0.84, 0.66), wet = vec3(0.62, 0.53, 0.40);
+  vec3 dry = vec3(0.8, 0.7, 0.5), wet = vec3(0.52, 0.43, 0.31);
   float w = smoothstep(-0.1, -0.6, vWorld.y);
   diffuseColor.rgb *= mix(dry, wet, w) * (0.9 + 0.15 * n);
 }`);
@@ -302,24 +302,21 @@ export function palmGeometry() {
     const a = (f / 7) * Math.PI * 2;
     const leaf = new THREE.BufferGeometry();
     const L = 4.2, W = 0.8;
-    const verts = [0, 0, 0, L * 0.5, 0.35, W, L * 0.5, 0.35, -W, L, -1.3, 0];
-    leaf.setAttribute('position', new THREE.Float32BufferAttribute([
-      ...verts.slice(0, 3), ...verts.slice(3, 6), ...verts.slice(6, 9),
-      ...verts.slice(3, 6), ...verts.slice(9, 12), ...verts.slice(6, 9),
-    ], 3));
-    leaf.computeVertexNormals();
+    const A = [0, 0, 0], B = [L * 0.5, 0.35, W], C = [L * 0.5, 0.35, -W], D = [L, -1.3, 0];
+    // both windings so the frond is visible from above and below; normals point up so it never goes black
+    const tris = [A, B, C, B, D, C, A, C, B, B, C, D];
+    leaf.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
+    leaf.setAttribute('normal', new THREE.Float32BufferAttribute(tris.flatMap(() => [0, 1, 0]), 3));
     leaf.rotateZ(-0.15);
     leaf.rotateY(a);
     leaf.translate(top.x, top.y, top.z);
     parts.push(colorize(leaf, f % 2 ? 0x3f8f3a : 0x2f7a35));
   }
-  const m = mergeGeometries(parts)!;
-  m.computeVertexNormals();
-  return m;
+  return mergeGeometries(parts)!;
 }
 
 export function palmMaterial() {
-  const mat = new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide });
+  const mat = new THREE.MeshLambertMaterial({ vertexColors: true });
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uTime = WorldUniforms.uTime;
     sh.vertexShader = sh.vertexShader
@@ -354,4 +351,26 @@ export function tlightPoleGeometry() {
 export function tlightHeadGeometry() {
   const g = new THREE.BoxGeometry(0.28, 0.28, 0.06); g.translate(0, 4.6, 0.45);
   return g;
+}
+
+/** Sidewalk slabs: plain Lambert plus fake street-lamp light pools at night (no real lights). */
+export function createSlabMaterial() {
+  const mat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+  mat.onBeforeCompile = (sh) => {
+    sh.uniforms.uNight = WorldUniforms.uNight;
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vWorld;')
+      .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvWorld = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nuniform float uNight; varying vec3 vWorld;')
+      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+{
+  vec2 l = abs(mod(vWorld.xz, ${CELL.toFixed(1)}) - ${(CELL / 2).toFixed(1)});
+  float d = min(length(l - vec2(18.0, 28.8)), length(l - vec2(28.8, 18.0)));
+  float gl = 1.0 - smoothstep(0.0, 8.0, d);
+  totalEmissiveRadiance += vec3(1.0, 0.72, 0.4) * gl * gl * uNight * 0.3;
+}`);
+  };
+  mat.customProgramCacheKey = () => 'vp-slab';
+  return mat;
 }

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Physics } from '../core/Physics';
 import { SpatialGrid, clamp } from '../core/util';
-import { CELL, INTERSECTION_CLEAR, LANE_OFFSET, N, nodeValid } from '../world/CityLayout';
+import { CELL, INTERSECTION_CLEAR, LANE_OFFSET, N, isExpressway, nodeValid } from '../world/CityLayout';
 import { TrafficLights } from '../world/TrafficLights';
 import { LaneState, Vehicle } from './Vehicle';
 import type { VehicleKind } from './VehicleModels';
@@ -140,7 +140,7 @@ export class Traffic {
 
   private drive(v: Vehicle, dt: number, obstacles: SpatialGrid<Obstacle>, nearPlayer: boolean) {
     const l = v.lane!;
-    let target = v.kind === 'sports' ? CRUISE * 1.15 : CRUISE;
+    let target = (v.kind === 'sports' ? CRUISE * 1.15 : CRUISE) * (isExpressway(l.ai, l.aj, l.bi, l.bj) ? 1.45 : 1);
     const fwd = v.forward(_b);
     // traffic lights (only on straight segments approaching the stop line)
     if (!l.turning) {

@@ -116,6 +116,8 @@ r = await page.evaluate(() => {
   return { wanted: g.police.wanted, step: m.active?.steps[m.stepIndex]?.type };
 });
 ok(r.wanted >= 3 && r.step === 'loseWanted', `police escape mission: ${r.wanted} stars, step ${r.step}`);
+r = await page.evaluate(() => { const g = window.game; sim(3); return { rb: g.police.roadblock.length, units: g.police.unitCount }; });
+ok(r.rb >= 2, `roadblock deployed at 3 stars (${r.rb} cruisers, ${r.units} pursuing units)`);
 await S('final');
 console.log('ERRORS: ' + (errors.length ? errors.slice(0, 10).join('\n') : 'none'));
 await browser.close();

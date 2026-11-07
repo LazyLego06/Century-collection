@@ -255,7 +255,7 @@ export class HUD {
     x.drawImage(this.mapImage, MX0, MZ0);
     // district labels
     x.fillStyle = 'rgba(255,255,255,0.75)'; x.font = `bold ${14 / s * 1.4}px Arial`; x.textAlign = 'center';
-    const labels: [string, number, number][] = [['NEON HEIGHTS', 432, 300], ['OCEAN DRIVE', 830, 200], ['PULSE DISTRICT', 720, 430], ['PALMETTO HILLS', 110, 300], ['SUNSET ISLES', 400, 760], ['GRAND CANAL', 300, 612], ['PORT VICE', 450, 40], ['MIDTOWN', 230, 120], ['PARADISE BEACH', 940, 470]];
+    const labels: [string, number, number][] = [['NEON HEIGHTS', 432, 300], ['OCEAN DRIVE', 830, 200], ['PULSE DISTRICT', 720, 430], ['PALMETTO HILLS', 110, 300], ['SUNSET ISLES', 400, 760], ['GRAND CANAL', 300, 612], ['PORT VICE', 450, 40], ['MIDTOWN', 230, 120], ['PARADISE BEACH', 940, 470], ['PARADISE EXPRESSWAY', 432, -2]];
     for (const [t, lx, lz] of labels) x.fillText(t, lx, lz);
     this.drawBlips(x, s, time, false);
     const p = this.game.player.pos;

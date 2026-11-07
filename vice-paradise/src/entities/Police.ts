@@ -208,7 +208,7 @@ export class Police {
         if (s.ni === undefined) {
           const n = nearestNode(pos.x + Math.sin(yaw) * 30, pos.z + Math.cos(yaw) * 30);
           ci = n.i; cj = n.j;
-          if (Math.hypot(ci * CELL - pos.x, cj * CELL - pos.z) > 11) { s.ni = ci; s.nj = cj; }
+          s.ni = ci; s.nj = cj;
         } else { ci = s.ni; cj = s.nj; }
         if (s.ni === ci && s.nj === cj && Math.hypot(ci * CELL - pos.x, cj * CELL - pos.z) < 11) {
           const tn = nearestNode(target.x, target.z);

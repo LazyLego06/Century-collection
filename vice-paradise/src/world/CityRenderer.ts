@@ -5,7 +5,7 @@ import {
   BEACH_END, BEACH_FLAT_END, Box, CityLayout, Chunk, CHUNK, LAND_MAX, LAND_MIN, CANAL_Z0, CANAL_Z1, CITY, CELL, N, ROAD_HALF,
 } from './CityLayout';
 import {
-  createBuildingMaterial, createFacadeAtlas, createGroundMaterial, createSandMaterial, lampHeadGeometry, lampPoleGeometry,
+  createBuildingMaterial, createFacadeAtlas, createSlabMaterial, createGroundMaterial, createSandMaterial, lampHeadGeometry, lampPoleGeometry,
   palmGeometry, palmMaterial, tlightHeadGeometry, tlightPoleGeometry, unitBoxBase,
 } from './Materials';
 import { TrafficLights } from './TrafficLights';
@@ -38,7 +38,7 @@ export class CityRenderer {
   atlas: THREE.DataTexture;
   buildingMat: THREE.MeshLambertMaterial;
   boxMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
-  slabMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+  slabMat = createSlabMaterial();
   neonMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
   lampHeadMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
   poleMat = new THREE.MeshLambertMaterial({ vertexColors: true });

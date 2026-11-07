@@ -35,7 +35,7 @@ void main() {
     // warm "Miami" grade: lift shadows slightly toward purple, push highlights warm
     float l = dot(col, vec3(0.299, 0.587, 0.114));
     col = mix(vec3(l), col, 1.12);
-    col += vec3(0.025, 0.0, 0.045) * (1.0 - l);
+    col += vec3(0.012, 0.0, 0.022) * (1.0 - l);
     col *= vec3(1.03, 1.0, 0.97);
     vec2 d = vUv - 0.5;
     col *= 1.0 - dot(d, d) * 0.75;
