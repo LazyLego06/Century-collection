@@ -14,7 +14,8 @@
     "test:gameplay": "node scripts/gameplay.mjs",
     "test:missions": "node scripts/missions.mjs",
     "bench:presets": "node scripts/presets.mjs",
-    "test:police": "node scripts/policeai.mjs 6"
+    "test:police": "node scripts/policeai.mjs 6",
+    "screenshots": "node scripts/showcase.mjs docs/screenshots"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.21.0",

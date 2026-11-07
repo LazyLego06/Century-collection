@@ -4,6 +4,14 @@ An original, neon-soaked open-world crime game set in a fictional Miami-style is
 
 It was designed around one target machine: **GTX 1050 Ti (4 GB) + Ryzen 5 5600X + 16 GB, 1080p**. The default Medium preset is tuned for that card, and an auto-adjuster lowers resolution and density when the frame rate drops.
 
+| | |
+|---|---|
+| ![Title screen](docs/screenshots/menu.jpg) | ![Driving through Palmetto Hills](docs/screenshots/driving.jpg) |
+| ![Pulse District at night (bloom on)](docs/screenshots/night.jpg) | ![3-star police pursuit](docs/screenshots/pursuit.jpg) |
+| ![Paradise Beach](docs/screenshots/beach.jpg) | ![Full-screen map](docs/screenshots/map.jpg) |
+
+<sub>Screenshots were captured with a software renderer in headless Chromium (High preset).</sub>
+
 > **Honest performance note:** the frame rate on a GTX 1050 Ti has **not** been measured. All automated testing ran in headless Chromium with a software renderer (SwiftShader), where FPS numbers don't mean anything. What *was* measured: draw calls and triangle counts per preset (see [Measured render load](#measured-render-load)). To get real numbers on your machine, press **F3** in-game.
 
 ## Quick start
