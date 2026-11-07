@@ -81,11 +81,25 @@ export class Player implements CharacterVisual {
 
     // vertical
     const feetY = this.body.translation().y - CENTER_Y;
-    this.swimming = feetY < WATER_Y - 1.1;
+    this.swimming = feetY < WATER_Y - 0.7; // swim target (-1.25 below surface) sits safely inside this band
     if (this.swimming) {
       const targetY = WATER_Y - 1.25;
       this.vy += (targetY - feetY) * 6 * dt - this.vy * 3 * dt;
-      if (this.wantJump) { this.vy = 6.5; }
+      if (this.wantJump) {
+        // climb out over a seawall / rail if one is right in front, otherwise kick up
+        const t0 = this.body.translation();
+        const dir = _f.set(Math.sin(this.yaw), 0, Math.cos(this.yaw));
+        const o = _v.set(t0.x, WATER_Y + 0.2, t0.z);
+        const hit = g.physics.raycast(o, dir, 2.2, GROUPS.qStatic, this.body);
+        if (hit) {
+          const land = hit.point.clone().addScaledVector(dir, 1.3);
+          this.teleport(land.setY(1.3));
+          this.swimming = false;
+          this.wantJump = false;
+          return;
+        }
+        this.vy = 6.5;
+      }
     } else {
       this.vy -= 22 * dt;
       if (this.grounded && this.wantJump) { this.vy = 7.2; this.grounded = false; g.audio.jump(); }

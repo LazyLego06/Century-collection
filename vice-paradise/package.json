@@ -13,7 +13,8 @@
     "test:smoke": "node scripts/smoke.mjs http://localhost:4173/ /tmp",
     "test:gameplay": "node scripts/gameplay.mjs",
     "test:missions": "node scripts/missions.mjs",
-    "bench:presets": "node scripts/presets.mjs"
+    "bench:presets": "node scripts/presets.mjs",
+    "test:police": "node scripts/policeai.mjs 6"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.21.0",

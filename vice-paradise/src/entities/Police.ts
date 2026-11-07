@@ -114,10 +114,11 @@ export class Police {
       const patrol = g.vehicles.find((v) => v.kind === 'police' && v.driver === 'traffic' && v.curPos.distanceTo(pl.pos) < 140);
       if (patrol) { patrol.makeDynamic(); patrol.driver = 'police'; patrol.sirenOn = true; patrol.aiState = {}; }
       else {
+        this.dispatchTimer = 0.4; // retry quickly if no valid spawn point was found
         // new units are sent to the last known position, not the player's true location
         const from = this.unseen > 2 ? this.lastSeen : pl.pos;
         const v = g.traffic.trySpawn(g.vehicles, from, frustum, 90, 170, 'police', pl.pos);
-        if (v) { v.makeDynamic(); v.driver = 'police'; v.sirenOn = true; v.aiState = {}; }
+        if (v) { v.makeDynamic(); v.driver = 'police'; v.sirenOn = true; v.aiState = {}; this.dispatchTimer = 2.5; }
       }
     }
 
@@ -129,7 +130,9 @@ export class Police {
     let copsOnFoot = 0;
     for (const p of g.peds.pool) if (p.active && p.kind === 'cop' && p.state === 'combat') copsOnFoot++;
     for (const v of units) {
-      if (!pl.inVehicle && !v.aiState.deployed && v.curPos.distanceTo(pl.pos) < 22 && Math.abs(v.speedMs) < 3 && copsOnFoot < 8) {
+      const vd = v.curPos.distanceTo(pl.pos);
+      const stalled = (v.aiState.slowT ?? 0) > 3 && vd < 70; // can't drive any closer: continue on foot
+      if (!pl.inVehicle && !v.aiState.deployed && (vd < 22 || stalled) && Math.abs(v.speedMs) < 3 && copsOnFoot < 8) {
         v.aiState.deployed = 1;
         for (const side of [-1, 1]) {
           const f = v.forward(_v);
@@ -197,8 +200,15 @@ export class Police {
     const dist = Math.hypot(target.x - pos.x, target.z - pos.z);
 
     let wx: number, wz: number;
-    const direct = dist < 48 && this.unseen < 1;
-    if (direct || !onRoad(pos.x, pos.z) && dist < 80) {
+    // direct pursuit only with a clear line of sight (checked ~4x/s); otherwise follow the road grid
+    s.losT = (s.losT ?? 0) - dt;
+    if (s.losT <= 0) {
+      s.losT = 0.25 + Math.random() * 0.1;
+      _v.set(pos.x, pos.y + 0.8, pos.z); _w.set(target.x, target.y + 0.8, target.z);
+      s.los = dist < 70 && g.physics.lineOfSight(_v, _w) ? 1 : 0;
+    }
+    const direct = (dist < 55 && this.unseen < 1 && s.los === 1) || dist < 9;
+    if (direct || (!onRoad(pos.x, pos.z) && s.los === 1)) {
       const pv = pl.inVehicle && pl.vehicle ? pl.vehicle.velocity : _v.set(0, 0, 0);
       wx = target.x + pv.x * 0.5; wz = target.z + pv.z * 0.5;
     } else {
@@ -226,6 +236,7 @@ export class Police {
     const want = Math.atan2(wx - pos.x, wz - pos.z);
     const ang = angleDiff(yaw, want);
 
+    s.slowT = Math.abs(speed) < 2 ? (s.slowT ?? 0) + dt : 0;
     // stuck recovery
     s.reverse = (s.reverse ?? 0) - dt;
     if (s.reverse > 0) { v.throttle = 0; v.brakeIn = 1; v.steer = -Math.sign(ang); v.handbrake = false; return; }

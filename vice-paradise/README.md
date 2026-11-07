@@ -118,7 +118,8 @@ This geometry load is small for a GTX 1050 Ti. The main GPU costs are pixel fill
 ```bash
 npm run build && npx vite preview &      # serve the production build on :4173
 npm run test:physics     # headless vehicle tuning (0-100, top speed, braking, stability)
-npm run test:gameplay    # 16 checks: driving, traffic, police dispatch/pursuit/escape, combat, explosions, missions, death/respawn
+npm run test:gameplay    # 18 checks: driving, traffic flow, police dispatch/pursuit/escape, roadblocks, combat, explosions, missions, death/respawn, swimming
+npm run test:police      # police pursuit trials from 6 spawn points (time to reach the player)
 npm run test:missions    # drives all 6 missions through every step to completion
 npm run test:smoke       # loads the game, plays briefly, saves screenshots, reports console errors
 npm run bench:presets    # draw calls / triangles per preset
